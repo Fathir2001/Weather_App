@@ -104,7 +104,7 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'WeatherApp',
+                            'ECOROUTE',
                             style: Theme.of(context)
                                 .textTheme
                                 .displaySmall
