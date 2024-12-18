@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'SignUp.dart';
+import 'HomePage.dart';
 
 class IntroPage extends StatefulWidget {
   const IntroPage({super.key});
@@ -12,7 +14,7 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _buttonController;
   late AnimationController _parallaxController;
-  
+
   @override
   void initState() {
     super.initState();
@@ -20,7 +22,7 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _buttonController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -44,16 +46,16 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF64B5F6),
-              const Color(0xFF42A5F5),
+              Color(0xFF64B5F6),
+              Color(0xFF42A5F5),
               Colors.white,
             ],
-            stops: const [0.0, 0.5, 1.0],
+            stops: [0.0, 0.5, 1.0],
           ),
         ),
         child: SafeArea(
@@ -61,7 +63,7 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
             children: [
               // Animated particles
               ...List.generate(20, (index) => _buildParticle(index)),
-              
+
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -70,13 +72,16 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
                     flex: 2,
                     child: Stack(
                       children: [
-                        _buildAnimatedIcon(Icons.wb_sunny_outlined, 0.2, 0.2, Colors.amber),
-                        _buildAnimatedIcon(Icons.cloud_outlined, 0.7, 0.3, Colors.white),
-                        _buildAnimatedIcon(Icons.water_drop_outlined, 0.4, 0.6, Colors.lightBlue),
+                        _buildAnimatedIcon(
+                            Icons.wb_sunny_outlined, 0.2, 0.2, Colors.amber),
+                        _buildAnimatedIcon(
+                            Icons.cloud_outlined, 0.7, 0.3, Colors.white),
+                        _buildAnimatedIcon(Icons.water_drop_outlined, 0.4, 0.6,
+                            Colors.lightBlue),
                       ],
                     ),
                   ),
-                  
+
                   // Middle Section
                   Expanded(
                     flex: 3,
@@ -90,14 +95,20 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
                         children: [
                           ShaderMask(
                             shaderCallback: (bounds) => LinearGradient(
-                              colors: [Colors.white, Colors.white.withOpacity(0.5)],
+                              colors: [
+                                Colors.white,
+                                Colors.white.withOpacity(0.5)
+                              ],
                             ).createShader(bounds),
                             child: const Icon(Icons.cloud, size: 120),
                           ),
                           const SizedBox(height: 20),
                           Text(
                             'WeatherApp',
-                            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall
+                                ?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.2,
@@ -113,16 +124,19 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
                           const SizedBox(height: 10),
                           Text(
                             'Your Personal Weather Companion',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.white.withOpacity(0.9),
-                              letterSpacing: 0.5,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Colors.white.withOpacity(0.9),
+                                  letterSpacing: 0.5,
+                                ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  
+
                   // Bottom Section
                   Expanded(
                     flex: 2,
@@ -130,7 +144,8 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ScaleTransition(
-                          scale: Tween(begin: 0.95, end: 1.0).animate(_buttonController),
+                          scale: Tween(begin: 0.95, end: 1.0)
+                              .animate(_buttonController),
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
@@ -146,9 +161,17 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
                               ],
                             ),
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SignUpPage(),
+                                  ),
+                                );
+                              },
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 50, vertical: 15),
                                 backgroundColor: Colors.transparent,
                                 foregroundColor: Colors.white,
                                 elevation: 0,
@@ -158,16 +181,36 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
                               ),
                               child: const Text(
                                 'Get Started',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
                         ),
-                        
                       ],
                     ),
                   ),
                 ],
+              ),
+              // Find the Bottom Section Column children and add after ElevatedButton:
+              const SizedBox(height: 15),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomePage(),
+                    ),
+                  );
+                },
+                child: Text(
+                  'Skip',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ),
@@ -176,13 +219,16 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAnimatedIcon(IconData icon, double left, double top, Color color) {
+  Widget _buildAnimatedIcon(
+      IconData icon, double left, double top, Color color) {
     return AnimatedBuilder(
       animation: _parallaxController,
       builder: (context, child) {
         return Positioned(
-          left: MediaQuery.of(context).size.width * left + (math.sin(_parallaxController.value * math.pi * 2) * 10),
-          top: MediaQuery.of(context).size.height * top + (math.cos(_parallaxController.value * math.pi * 2) * 10),
+          left: MediaQuery.of(context).size.width * left +
+              (math.sin(_parallaxController.value * math.pi * 2) * 10),
+          top: MediaQuery.of(context).size.height * top +
+              (math.cos(_parallaxController.value * math.pi * 2) * 10),
           child: FadeTransition(
             opacity: _fadeController,
             child: Container(
