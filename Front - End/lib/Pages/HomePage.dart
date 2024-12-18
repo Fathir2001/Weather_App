@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import '../Models/sensor_data.dart';
+import '../Services/bluetooth_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,6 +13,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _cardController;
+  late BluetoothService _bluetoothService;
+  SensorData? _sensorData;
+  bool _isConnected = false;
+  String _connectionStatus = 'Connecting...';
 
   @override
   void initState() {
@@ -24,13 +30,63 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..forward();
+
+    _initializeBluetoothConnection();
+  }
+
+  Future<void> _initializeBluetoothConnection() async {
+    _bluetoothService = BluetoothService();
+    try {
+      await _bluetoothService.initialize();
+      await _bluetoothService.connectToDevice();
+      _bluetoothService.dataStream.listen(
+        (data) {
+          setState(() {
+            _sensorData = data;
+            _isConnected = true;
+            _connectionStatus = 'Connected';
+          });
+        },
+        onError: (error) {
+          setState(() {
+            _isConnected = false;
+            _connectionStatus = 'Error: $error';
+          });
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _isConnected = false;
+        _connectionStatus = 'Connection failed';
+      });
+    }
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
     _cardController.dispose();
+    _bluetoothService.dispose();
     super.dispose();
+  }
+
+  String _getDisplayValue(String type) {
+    if (!_isConnected) return _connectionStatus;
+
+    switch (type) {
+      case 'Temperature':
+        return '${_sensorData?.temperature.toStringAsFixed(1) ?? '--'}°C';
+      case 'Humidity':
+        return '${_sensorData?.humidity.toStringAsFixed(1) ?? '--'}%';
+      case 'Rainfall':
+        return _sensorData?.rainCondition ?? '--';
+      case 'Light':
+        return _sensorData?.lightCondition ?? '--';
+      case 'Pressure':
+        return '${_sensorData?.pressure.toStringAsFixed(0) ?? '--'} hPa';
+      default:
+        return '--';
+    }
   }
 
   @override
@@ -53,66 +109,79 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: Stack(
             children: [
               ...List.generate(20, (index) => _buildParticle(index)),
-              SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      'Weather Dashboard',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildWeatherCard(
-                          'Temperature',
-                          '25°C',
-                          Icons.thermostat,
-                          Colors.orange,
-                          0.2,
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Weather Dashboard',
+                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                _isConnected ? Icons.wifi : Icons.wifi_off,
+                                color: Colors.white,
+                              ),
+                              onPressed: _initializeBluetoothConnection,
+                            ),
+                          ],
                         ),
-                        _buildWeatherCard(
-                          'Humidity',
-                          '65%',
-                          Icons.water_drop,
-                          Colors.blue,
-                          0.3,
+                        const SizedBox(height: 30),
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: constraints.maxWidth > 600 ? 1.3 : 1.1,
+                          children: [
+                            _buildWeatherCard(
+                              'Temperature',
+                              Icons.thermostat,
+                              Colors.orange,
+                              0.2,
+                            ),
+                            _buildWeatherCard(
+                              'Humidity',
+                              Icons.water_drop,
+                              Colors.blue,
+                              0.3,
+                            ),
+                            _buildWeatherCard(
+                              'Rainfall',
+                              Icons.umbrella,
+                              Colors.indigo,
+                              0.4,
+                            ),
+                            _buildWeatherCard(
+                              'Light',
+                              Icons.light_mode,
+                              Colors.amber,
+                              0.5,
+                            ),
+                            _buildWeatherCard(
+                              'Pressure',
+                              Icons.speed,
+                              Colors.green,
+                              0.6,
+                            ),
+                          ],
                         ),
-                        _buildWeatherCard(
-                          'Rainfall',
-                          '2.5mm',
-                          Icons.umbrella,
-                          Colors.indigo,
-                          0.4,
-                        ),
-                        _buildWeatherCard(
-                          'Light',
-                          '850 lux',
-                          Icons.light_mode,
-                          Colors.amber,
-                          0.5,
-                        ),
-                        _buildWeatherCard(
-                          'Pressure',
-                          '1013 hPa',
-                          Icons.speed,
-                          Colors.green,
-                          0.6,
-                        ),
+                        const SizedBox(height: 20),
                       ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ],
           ),
@@ -123,7 +192,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Widget _buildWeatherCard(
     String title,
-    String value,
     IconData icon,
     Color color,
     double delay,
@@ -160,11 +228,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 12),
               Text(
-                value,
+                _getDisplayValue(title),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: Colors.black87,
                   fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
