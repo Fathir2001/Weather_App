@@ -97,6 +97,8 @@ String getRainCondition(int value) {
     return "Moderate Rain";
   } else if (value < 1750) {
     return "Light Rain";
-  } else {return "No Rain";
-  }
+  } else {
+    return "No Rain";
+  }
 }
+

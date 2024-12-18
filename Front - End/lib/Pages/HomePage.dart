@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import '../Models/sensor_data.dart';
-import '../Services/bluetooth_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,10 +11,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _cardController;
-  late BluetoothService _bluetoothService;
-  SensorData? _sensorData;
-  bool _isConnected = false;
-  String _connectionStatus = 'Connecting...';
 
   @override
   void initState() {
@@ -30,60 +24,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..forward();
-
-    _initializeBluetoothConnection();
-  }
-
-  Future<void> _initializeBluetoothConnection() async {
-    _bluetoothService = BluetoothService();
-    try {
-      await _bluetoothService.initialize();
-      await _bluetoothService.connectToDevice();
-      _bluetoothService.dataStream.listen(
-        (data) {
-          setState(() {
-            _sensorData = data;
-            _isConnected = true;
-            _connectionStatus = 'Connected';
-          });
-        },
-        onError: (error) {
-          setState(() {
-            _isConnected = false;
-            _connectionStatus = 'Error: $error';
-          });
-        },
-      );
-    } catch (e) {
-      setState(() {
-        _isConnected = false;
-        _connectionStatus = 'Connection failed';
-      });
-    }
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
     _cardController.dispose();
-    _bluetoothService.dispose();
     super.dispose();
   }
 
   String _getDisplayValue(String type) {
-    if (!_isConnected) return _connectionStatus;
-
     switch (type) {
       case 'Temperature':
-        return '${_sensorData?.temperature.toStringAsFixed(1) ?? '--'}°C';
+        return '25.5°C';
       case 'Humidity':
-        return '${_sensorData?.humidity.toStringAsFixed(1) ?? '--'}%';
+        return '60%';
       case 'Rainfall':
-        return _sensorData?.rainCondition ?? '--';
+        return 'No Rain';
       case 'Light':
-        return _sensorData?.lightCondition ?? '--';
+        return 'Bright';
       case 'Pressure':
-        return '${_sensorData?.pressure.toStringAsFixed(0) ?? '--'} hPa';
+        return '1013 hPa';
       default:
         return '--';
     }
@@ -117,24 +78,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Weather Dashboard',
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _isConnected ? Icons.wifi : Icons.wifi_off,
-                                color: Colors.white,
-                              ),
-                              onPressed: _initializeBluetoothConnection,
-                            ),
-                          ],
+                        Text(
+                          'Weather Dashboard',
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 30),
                         GridView.count(
