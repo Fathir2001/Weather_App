@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import '../Api_Service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUp.dart';
+import 'HomePage.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -63,7 +63,7 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Sign in successful!')),
             );
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const HomePage()));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(response['message'])),
@@ -157,8 +157,10 @@ class _SignInPageState extends State<SignInPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       body: Container(
         decoration: const BoxDecoration(
+
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,

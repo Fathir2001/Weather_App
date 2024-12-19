@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'SignUp.dart';
+import 'SignIn.dart';
 import 'HomePage.dart';
 
 class IntroPage extends StatefulWidget {
@@ -165,7 +166,7 @@ class _IntroPageState extends State<IntroPage> with TickerProviderStateMixin {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const SignUpPage(),
+                                    builder: (context) => const SignInPage(),
                                   ),
                                 );
                               },

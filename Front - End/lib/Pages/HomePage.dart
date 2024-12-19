@@ -1,5 +1,25 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'dart:async';
+import 'gps.dart';
+
+class WeatherData {
+  final double temperature;
+  final double humidity;
+  final int rainVal;
+  final String rainCondition;
+  final String lightCondition;
+  final double pressure;
+
+  WeatherData({
+    required this.temperature,
+    required this.humidity,
+    required this.rainVal,
+    required this.rainCondition,
+    required this.lightCondition,
+    required this.pressure,
+  });
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,8 +29,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  int _selectedIndex = 0;
   late AnimationController _fadeController;
   late AnimationController _cardController;
+  WeatherData? _currentWeather;
+  bool _isLoading = false;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   void initState() {
@@ -24,6 +53,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..forward();
+
+    _currentWeather = WeatherData(
+      temperature: 29.80,
+      humidity: 92.00,
+      rainVal: 1535,
+      rainCondition: 'No Rain',
+      lightCondition: 'Low Brightness',
+      pressure: 1023.33,
+    );
   }
 
   @override
@@ -33,18 +71,46 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  Future<void> _updateWeatherData() async {
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    setState(() {
+      _currentWeather = WeatherData(
+        temperature: 29.80,
+        humidity: 92.00,
+        rainVal: 1535,
+        rainCondition: _getRandomRainCondition(),
+        lightCondition: _getRandomLightCondition(),
+        pressure: 1023.33,
+      );
+      _isLoading = false;
+    });
+  }
+
+  String _getRandomRainCondition() {
+    final conditions = ['No Rain', 'Heavy Rain', 'Moderate Rain'];
+    return conditions[math.Random().nextInt(conditions.length)];
+  }
+
+  String _getRandomLightCondition() {
+    return math.Random().nextBool() ? 'High Brightness' : 'Low Brightness';
+  }
+
   String _getDisplayValue(String type) {
+    if (_currentWeather == null) return '--';
+    
     switch (type) {
       case 'Temperature':
-        return '25.5°C';
+        return '${_currentWeather!.temperature}°C';
       case 'Humidity':
-        return '60%';
+        return '${_currentWeather!.humidity}%';
       case 'Rainfall':
-        return 'No Rain';
+        return _currentWeather!.rainCondition;
       case 'Light':
-        return 'Bright';
+        return _currentWeather!.lightCondition;
       case 'Pressure':
-        return '1013 hPa';
+        return '${_currentWeather!.pressure} hPa';
       default:
         return '--';
     }
@@ -53,7 +119,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        elevation: 0,
+        title: const Text('Weather Dashboard', 
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: _isLoading 
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _isLoading ? null : _updateWeatherData,
+          ),
+        ],
+      ),
+      body: _selectedIndex == 0 ? Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -77,14 +165,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 20),
-                        Text(
-                          'Weather Dashboard',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                         const SizedBox(height: 30),
                         GridView.count(
                           shrinkWrap: true,
@@ -126,7 +206,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
                       ],
                     ),
                   );
@@ -135,6 +214,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ],
           ),
         ),
+      ) : const GPS(),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Weather',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_on),
+            label: 'GPS',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blue,
+        onTap: _onItemTapped,
       ),
     );
   }
