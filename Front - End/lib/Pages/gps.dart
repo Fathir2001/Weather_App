@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class GPS extends StatefulWidget {
   const GPS({super.key});
@@ -8,10 +9,43 @@ class GPS extends StatefulWidget {
 }
 
 class _GPSState extends State<GPS> {
-  final String _latitude = "0.0000";
-  final String _longitude = "0.0000";
-  final String _accuracy = "0.0";
+  final String _latitude = "6.808700";
+  final String _longitude = "79.993153";
+  final String _accuracy = "100.0";
 
+Future<void> _launchMaps() async {
+  final Uri url = Uri.parse('https://www.google.com/maps?q=6.808700,79.993153');
+  try {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+      webViewConfiguration: const WebViewConfiguration(enableJavaScript: true),
+    )) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Could not open maps. Please check if Google Maps is installed.'),
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: _launchMaps,
+            ),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error opening maps: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    }
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,17 +85,18 @@ class _GPSState extends State<GPS> {
                 const SizedBox(height: 30),
                 Center(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Implement GPS update logic
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Location'),
+                    onPressed: _launchMaps,
+                    icon: const Icon(Icons.location_on),
+                    label: const Text('Open in Maps'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 15,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),

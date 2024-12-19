@@ -30,10 +30,46 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _selectedIndex = 0;
+  int _weatherStateIndex = 0;
   late AnimationController _fadeController;
   late AnimationController _cardController;
   WeatherData? _currentWeather;
   bool _isLoading = false;
+
+  final List<WeatherData> weatherStates = [
+    WeatherData(
+      temperature: 29.80,
+      humidity: 92.00,
+      rainVal: 1535,
+      rainCondition: 'No Rain',
+      lightCondition: 'Low Brightness',
+      pressure: 1023.33,
+    ),
+    WeatherData(
+      temperature: 29.80,
+      humidity: 92.00,
+      rainVal: 1535,
+      rainCondition: 'No Rain',
+      lightCondition: 'High Brightness',
+      pressure: 1023.33,
+    ),
+    WeatherData(
+      temperature: 29.80,
+      humidity: 92.00,
+      rainVal: 1535,
+      rainCondition: 'Moderate Rain',
+      lightCondition: 'Low Brightness',
+      pressure: 1023.33,
+    ),
+    WeatherData(
+      temperature: 29.80,
+      humidity: 92.00,
+      rainVal: 1535,
+      rainCondition: 'Heavy Rain',
+      lightCondition: 'Low Brightness',
+      pressure: 1023.33,
+    ),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -54,14 +90,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       vsync: this,
     )..forward();
 
-    _currentWeather = WeatherData(
-      temperature: 29.80,
-      humidity: 92.00,
-      rainVal: 1535,
-      rainCondition: 'No Rain',
-      lightCondition: 'Low Brightness',
-      pressure: 1023.33,
-    );
+    _currentWeather = weatherStates[0];
   }
 
   @override
@@ -76,25 +105,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     await Future.delayed(const Duration(milliseconds: 500));
     
     setState(() {
-      _currentWeather = WeatherData(
-        temperature: 29.80,
-        humidity: 92.00,
-        rainVal: 1535,
-        rainCondition: _getRandomRainCondition(),
-        lightCondition: _getRandomLightCondition(),
-        pressure: 1023.33,
-      );
+      _weatherStateIndex = (_weatherStateIndex + 1) % weatherStates.length;
+      _currentWeather = weatherStates[_weatherStateIndex];
       _isLoading = false;
     });
-  }
-
-  String _getRandomRainCondition() {
-    final conditions = ['No Rain', 'Heavy Rain', 'Moderate Rain'];
-    return conditions[math.Random().nextInt(conditions.length)];
-  }
-
-  String _getRandomLightCondition() {
-    return math.Random().nextBool() ? 'High Brightness' : 'Low Brightness';
   }
 
   String _getDisplayValue(String type) {
