@@ -160,126 +160,118 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF1565C0), Color(0xFF64B5F6)],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 6),
-                  Text(
-                    'Create Account',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+      backgroundColor: Colors.blue[300],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 6),
+                Text(
+                  'Create Account',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 6),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        _buildAnimatedFormField(
-                          controller: _emailController,
-                          label: 'Email',
-                          icon: Icons.email,
-                          delay: 0.0,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildAnimatedFormField(
-                          controller: _nameController,
-                          label: 'Full Name',
-                          icon: Icons.person,
-                          delay: 0.2,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildAnimatedFormField(
-                          controller: _addressController,
-                          label: 'Address',
-                          icon: Icons.location_on,
-                          delay: 0.4,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildAnimatedFormField(
-                          controller: _phoneController,
-                          label: 'Phone Number',
-                          icon: Icons.phone,
-                          delay: 0.6,
-                          keyboardType: TextInputType.phone,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildAnimatedFormField(
-                          controller: _passwordController,
-                          label: 'Password',
-                          icon: Icons.lock,
-                          delay: 0.8,
-                          isPassword: true,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildAnimatedFormField(
-                          controller: _confirmPasswordController,
-                          label: 'Confirm Password',
-                          icon: Icons.lock_outline,
-                          delay: 0.9,
-                          isPassword: true,
-                        ),
-                        const SizedBox(height: 15),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.blue[700],
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 8,
-                            ),
-                            minimumSize: const Size(120, 35),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                ),
+                const SizedBox(height: 6),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      _buildAnimatedFormField(
+                        controller: _emailController,
+                        label: 'Email',
+                        icon: Icons.email,
+                        delay: 0.0,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildAnimatedFormField(
+                        controller: _nameController,
+                        label: 'Full Name',
+                        icon: Icons.person,
+                        delay: 0.2,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildAnimatedFormField(
+                        controller: _addressController,
+                        label: 'Address',
+                        icon: Icons.location_on,
+                        delay: 0.4,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildAnimatedFormField(
+                        controller: _phoneController,
+                        label: 'Phone Number',
+                        icon: Icons.phone,
+                        delay: 0.6,
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildAnimatedFormField(
+                        controller: _passwordController,
+                        label: 'Password',
+                        icon: Icons.lock,
+                        delay: 0.8,
+                        isPassword: true,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildAnimatedFormField(
+                        controller: _confirmPasswordController,
+                        label: 'Confirm Password',
+                        icon: Icons.lock_outline,
+                        delay: 0.9,
+                        isPassword: true,
+                      ),
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.blue[700],
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 8,
                           ),
-                          onPressed: _isLoading ? null : _handleSignup,
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                                  ),
-                                )
-                              : const Text('Sign Up', style: TextStyle(fontSize: 14)),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignInPage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Already have an account? Sign In',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 12,
-                            ),
+                          minimumSize: const Size(120, 35),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                      ],
-                    ),
+                        onPressed: _isLoading ? null : _handleSignup,
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                ),
+                              )
+                            : const Text('Sign Up', style: TextStyle(fontSize: 14)),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SignInPage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Already have an account? Sign In',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

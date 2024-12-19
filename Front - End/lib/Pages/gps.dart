@@ -55,7 +55,7 @@ class _GPSState extends State<GPS> {
                       // TODO: Implement GPS update logic
                     },
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Update Location'),
+                    label: const Text('Location'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.blue,
