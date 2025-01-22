@@ -75,7 +75,7 @@ void loop() {
   }
 
   // Wait 2 seconds before the next loop
-  delay(2000);
+  delay(10000);
 }
 
 String getLightCondition(int value) {
