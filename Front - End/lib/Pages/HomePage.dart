@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:weather_app/Pages/Notification.dart';
+
 import 'dart:math' as math;
 import 'dart:async';
 import 'gps.dart';
@@ -133,13 +135,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+            appBar: AppBar(
         backgroundColor: Colors.blue,
         elevation: 0,
         title: const Text('Weather Dashboard', 
           style: TextStyle(color: Colors.white),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotificationPage()),
+              );
+            },
+          ),
           IconButton(
             icon: _isLoading 
               ? const SizedBox(
@@ -153,6 +164,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               : const Icon(Icons.refresh, color: Colors.white),
             onPressed: _isLoading ? null : _updateWeatherData,
           ),
+          const SizedBox(width: 8), // Add padding at the end
         ],
       ),
       body: _selectedIndex == 0 ? Container(
