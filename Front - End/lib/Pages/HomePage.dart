@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app/Pages/Notification.dart';
+import 'package:weather_app/Pages/Notification_service.dart';
 
 import 'dart:math' as math;
 import 'dart:async';
@@ -33,6 +34,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _selectedIndex = 0;
   int _weatherStateIndex = 0;
+  int _refreshCount = 0;
   late AnimationController _fadeController;
   late AnimationController _cardController;
   WeatherData? _currentWeather;
@@ -105,17 +107,33 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> _updateWeatherData() async {
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     setState(() {
       _weatherStateIndex = (_weatherStateIndex + 1) % weatherStates.length;
       _currentWeather = weatherStates[_weatherStateIndex];
       _isLoading = false;
+      _refreshCount++;
+
+      if (_refreshCount == 1) {
+        NotificationService.addNotification(
+          'The vehicle was arrived to 500 m',
+          'High',
+          Icons.directions_car,
+        );
+      } else if (_refreshCount == 2) {
+        NotificationService.addNotification(
+          'The vehicle was arrived to 100 m',
+          'High',
+          Icons.directions_car,
+        );
+        _refreshCount = 0; // Reset counter
+      }
     });
   }
 
   String _getDisplayValue(String type) {
     if (_currentWeather == null) return '--';
-    
+
     switch (type) {
       case 'Temperature':
         return '${_currentWeather!.temperature}°C';
@@ -135,112 +153,142 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.blue,
         elevation: 0,
-        title: const Text('Weather Dashboard', 
+        title: const Text(
+          'Weather Dashboard',
           style: TextStyle(color: Colors.white),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NotificationPage()),
+          ValueListenableBuilder<bool>(
+            valueListenable: NotificationService.hasNewNotifications,
+            builder: (context, hasNew, child) {
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    onPressed: () {
+                      NotificationService.hasNewNotifications.value = false;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NotificationPage()),
+                      );
+                    },
+                  ),
+                  if (hasNew)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 12,
+                          minHeight: 12,
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),
           IconButton(
-            icon: _isLoading 
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Icon(Icons.refresh, color: Colors.white),
+            icon: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(Icons.refresh, color: Colors.white),
             onPressed: _isLoading ? null : _updateWeatherData,
           ),
-          const SizedBox(width: 8), // Add padding at the end
         ],
       ),
-      body: _selectedIndex == 0 ? Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF64B5F6),
-              Color(0xFF42A5F5),
-              Colors.white,
-            ],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              ...List.generate(20, (index) => _buildParticle(index)),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 30),
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          childAspectRatio: constraints.maxWidth > 600 ? 1.3 : 1.1,
-                          children: [
-                            _buildWeatherCard(
-                              'Temperature',
-                              Icons.thermostat,
-                              Colors.orange,
-                              0.2,
-                            ),
-                            _buildWeatherCard(
-                              'Humidity',
-                              Icons.water_drop,
-                              Colors.blue,
-                              0.3,
-                            ),
-                            _buildWeatherCard(
-                              'Rainfall',
-                              Icons.umbrella,
-                              Colors.indigo,
-                              0.4,
-                            ),
-                            _buildWeatherCard(
-                              'Light',
-                              Icons.light_mode,
-                              Colors.amber,
-                              0.5,
-                            ),
-                            _buildWeatherCard(
-                              'Pressure',
-                              Icons.speed,
-                              Colors.green,
-                              0.6,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
+      body: _selectedIndex == 0
+          ? Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF64B5F6),
+                    Color(0xFF42A5F5),
+                    Colors.white,
+                  ],
+                  stops: [0.0, 0.5, 1.0],
+                ),
               ),
-            ],
-          ),
-        ),
-      ) : const GPS(),
+              child: SafeArea(
+                child: Stack(
+                  children: [
+                    ...List.generate(20, (index) => _buildParticle(index)),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 30),
+                              GridView.count(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 16,
+                                childAspectRatio:
+                                    constraints.maxWidth > 600 ? 1.3 : 1.1,
+                                children: [
+                                  _buildWeatherCard(
+                                    'Temperature',
+                                    Icons.thermostat,
+                                    Colors.orange,
+                                    0.2,
+                                  ),
+                                  _buildWeatherCard(
+                                    'Humidity',
+                                    Icons.water_drop,
+                                    Colors.blue,
+                                    0.3,
+                                  ),
+                                  _buildWeatherCard(
+                                    'Rainfall',
+                                    Icons.umbrella,
+                                    Colors.indigo,
+                                    0.4,
+                                  ),
+                                  _buildWeatherCard(
+                                    'Light',
+                                    Icons.light_mode,
+                                    Colors.amber,
+                                    0.5,
+                                  ),
+                                  _buildWeatherCard(
+                                    'Pressure',
+                                    Icons.speed,
+                                    Colors.green,
+                                    0.6,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : const GPS(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -299,17 +347,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               Text(
                 _getDisplayValue(title),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.black54,
-                ),
+                      color: Colors.black54,
+                    ),
               ),
             ],
           ),

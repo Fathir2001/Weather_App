@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Notification_service.dart';
 
 class NotificationItem {
   final String message;
@@ -22,26 +23,7 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  final List<NotificationItem> notifications = [
-    NotificationItem(
-      message: 'Heavy rainfall expected in your area',
-      timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-      priority: 'High',
-      icon: Icons.warning_amber_rounded,
-    ),
-    NotificationItem(
-      message: 'Temperature is above normal',
-      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-      priority: 'Medium',
-      icon: Icons.thermostat,
-    ),
-    NotificationItem(
-      message: 'High humidity levels detected',
-      timestamp: DateTime.now().subtract(const Duration(hours: 4)),
-      priority: 'Low',
-      icon: Icons.water_drop,
-    ),
-  ];
+  List<NotificationItem> get notifications => NotificationService.notifications;
 
   void _removeNotification(int index) {
     setState(() {
@@ -144,7 +126,8 @@ class _NotificationPageState extends State<NotificationPage> {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor:
-                            _getPriorityColor(notification.priority).withOpacity(0.2),
+                            _getPriorityColor(notification.priority)
+                                .withOpacity(0.2),
                         child: Icon(
                           notification.icon,
                           color: _getPriorityColor(notification.priority),
@@ -162,24 +145,61 @@ class _NotificationPageState extends State<NotificationPage> {
                           color: Colors.grey[600],
                         ),
                       ),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getPriorityColor(notification.priority)
-                              .withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          notification.priority,
-                          style: TextStyle(
-                            color: _getPriorityColor(notification.priority),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getPriorityColor(notification.priority)
+                                  .withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              notification.priority,
+                              style: TextStyle(
+                                color: _getPriorityColor(notification.priority),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Delete Notification'),
+                                    content: const Text(
+                                        'Are you sure you want to delete this notification?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          _removeNotification(index);
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          'Delete',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
