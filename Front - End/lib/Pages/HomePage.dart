@@ -116,13 +116,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       if (_refreshCount == 1) {
         NotificationService.addNotification(
-          'The vehicle was arrived to 500 m',
-          'High',
+          'The Garbage Truck is in 500 m distance',
+          'Medium',
           Icons.directions_car,
         );
       } else if (_refreshCount == 2) {
         NotificationService.addNotification(
-          'The vehicle was arrived to 100 m',
+          'The Garbage Truck is in 100 m distance',
           'High',
           Icons.directions_car,
         );
