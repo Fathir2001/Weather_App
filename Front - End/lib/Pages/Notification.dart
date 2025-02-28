@@ -25,6 +25,10 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<NotificationItem> get notifications => NotificationService.notifications;
 
+  bool _isSmallScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width < 360;
+  }
+
   void _removeNotification(int index) {
     setState(() {
       notifications.removeAt(index);
@@ -59,18 +63,27 @@ class _NotificationPageState extends State<NotificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isSmall = _isSmallScreen(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Notifications',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: isSmall ? 18 : 20,
+          ),
         ),
         actions: [
           if (notifications.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.clear_all, color: Colors.white),
+              icon: Icon(
+                Icons.clear_all,
+                color: Colors.white,
+                size: isSmall ? 22 : 24,
+              ),
               onPressed: () {
                 setState(() {
                   notifications.clear();
@@ -86,14 +99,14 @@ class _NotificationPageState extends State<NotificationPage> {
                 children: [
                   Icon(
                     Icons.notifications_off,
-                    size: 64,
+                    size: isSmall ? 48 : 64,
                     color: Colors.grey[400],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: isSmall ? 12 : 16),
                   Text(
                     'No notifications',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: isSmall ? 16 : 18,
                       color: Colors.grey[600],
                     ),
                   ),
@@ -109,49 +122,59 @@ class _NotificationPageState extends State<NotificationPage> {
                   background: Container(
                     color: Colors.red,
                     alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 16),
-                    child: const Icon(
+                    padding: EdgeInsets.only(right: isSmall ? 8 : 16),
+                    child: Icon(
                       Icons.delete,
                       color: Colors.white,
+                      size: isSmall ? 20 : 24,
                     ),
                   ),
                   direction: DismissDirection.endToStart,
                   onDismissed: (_) => _removeNotification(index),
                   child: Card(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                    margin: EdgeInsets.symmetric(
+                      horizontal: isSmall ? 8 : 16,
+                      vertical: isSmall ? 4 : 8,
                     ),
                     elevation: 2,
                     child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: isSmall ? 8 : 16,
+                        vertical: isSmall ? 4 : 8,
+                      ),
                       leading: CircleAvatar(
+                        radius: isSmall ? 16 : 20,
                         backgroundColor:
-                            _getPriorityColor(notification.priority)
-                                .withOpacity(0.2),
+                            _getPriorityColor(notification.priority).withOpacity(0.2),
                         child: Icon(
                           notification.icon,
+                          size: isSmall ? 16 : 20,
                           color: _getPriorityColor(notification.priority),
                         ),
                       ),
                       title: Text(
                         notification.message,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w500,
+                          fontSize: isSmall ? 14 : 16,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       subtitle: Text(
                         _getTimeAgo(notification.timestamp),
                         style: TextStyle(
                           color: Colors.grey[600],
+                          fontSize: isSmall ? 12 : 14,
                         ),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      trailing: Wrap(
+                        spacing: isSmall ? 4 : 8,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isSmall ? 4 : 8,
+                              vertical: isSmall ? 2 : 4,
                             ),
                             decoration: BoxDecoration(
                               color: _getPriorityColor(notification.priority)
@@ -162,35 +185,60 @@ class _NotificationPageState extends State<NotificationPage> {
                               notification.priority,
                               style: TextStyle(
                                 color: _getPriorityColor(notification.priority),
-                                fontSize: 12,
+                                fontSize: isSmall ? 10 : 12,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
                           IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
+                            icon: Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                              size: isSmall ? 20 : 24,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(
+                              minWidth: isSmall ? 32 : 40,
+                              minHeight: isSmall ? 32 : 40,
+                            ),
                             onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: const Text('Delete Notification'),
-                                    content: const Text(
-                                        'Are you sure you want to delete this notification?'),
+                                    title: Text(
+                                      'Delete Notification',
+                                      style: TextStyle(
+                                        fontSize: isSmall ? 18 : 20,
+                                      ),
+                                    ),
+                                    content: Text(
+                                      'Are you sure you want to delete this notification?',
+                                      style: TextStyle(
+                                        fontSize: isSmall ? 14 : 16,
+                                      ),
+                                    ),
                                     actions: [
                                       TextButton(
                                         onPressed: () => Navigator.pop(context),
-                                        child: const Text('Cancel'),
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            fontSize: isSmall ? 14 : 16,
+                                          ),
+                                        ),
                                       ),
                                       TextButton(
                                         onPressed: () {
                                           _removeNotification(index);
                                           Navigator.pop(context);
                                         },
-                                        child: const Text(
+                                        child: Text(
                                           'Delete',
-                                          style: TextStyle(color: Colors.red),
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: isSmall ? 14 : 16,
+                                          ),
                                         ),
                                       ),
                                     ],
