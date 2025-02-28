@@ -313,6 +313,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     Color color,
     double delay,
   ) {
+    // Get the screen width to calculate responsive sizes
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360; // Threshold for small screens
     return SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(0, 1),
@@ -340,24 +343,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: [
               Icon(
                 icon,
-                size: 40,
+                size: isSmallScreen ? 24 : 40,
                 color: color,
               ),
-              const SizedBox(height: 12),
-              Text(
-                _getDisplayValue(title),
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.bold,
-                    ),
-                textAlign: TextAlign.center,
+              SizedBox(height: isSmallScreen ? 8 : 12),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  _getDisplayValue(title),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isSmallScreen ? 16 : 24,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.black54,
-                    ),
+              SizedBox(height: isSmallScreen ? 4 : 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.black54,
+                        fontSize: isSmallScreen ? 12 : 16,
+                      ),
+                ),
               ),
             ],
           ),
